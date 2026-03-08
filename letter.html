@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A Letter For You</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <canvas id="particles"></canvas>
+
+    <div class="page-container">
+        <section class="letter-section">
+            <div class="letter-content">
+                <p>I wanted to take a moment today to celebrate you.</p>
+                <p>You bring so much light and positive energy to me , and I feel incredibly lucky to
+                    have you as a (ahh idk is pyaar ko kya naam de) in my life.</p>
+                <p>Keep being the amazing, inspiring, and beautiful person you are. I'm cheering you on today and every
+                    day. ALL I SAY IS YOUR'RE MY FAVORITE PERSON AYSHI AND ILYSMBBG 💖</p>
+                <div class="signature">~ Apko Pareshan krne wala nikamma nalayak insaan</div>
+            </div>
+        </section>
+        <p style="color: var(--primary-green); margin-top: 20px;"> Made with care for you.</p>
+    </div>
+
+    <script>
+        // 3D Tilt Effect (Only runs on pages with cards)
+        const cards = document.querySelectorAll('.card');
+        if (cards.length > 0) {
+            cards.forEach(card => {
+                card.addEventListener('mousemove', (e) => {
+                    card.classList.remove('reset-anim');
+                    const rect = card.getBoundingClientRect();
+                    const x = e.clientX - rect.left, y = e.clientY - rect.top;
+                    const centerX = rect.width / 2, centerY = rect.height / 2;
+                    const rotateX = ((y - centerY) / centerY) * -10, rotateY = ((x - centerX) / centerX) * 10;
+                    card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-10px)`;
+                    /* Updated to Navy Blue Shadow */
+                    card.style.boxShadow = `0 15px 30px rgba(8, 31, 92, 0.2)`;
+                });
+                card.addEventListener('mouseleave', () => {
+                    card.classList.add('reset-anim');
+                    card.style.transform = `perspective(1000px) rotateX(0) rotateY(0) translateY(0)`;
+                    /* Updated to Navy Blue Shadow */
+                    card.style.boxShadow = `0 4px 15px rgba(8, 31, 92, 0.1)`;
+                });
+            });
+        }
+
+        // Floating Particles Code
+        const canvas = document.getElementById('particles');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+        let particlesArray = [];
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = canvas.height + Math.random() * 100;
+                this.size = Math.random() * 3 + 1;
+                this.speedY = Math.random() * 1 + 0.5;
+                this.opacity = Math.random() * 0.5 + 0.1;
+            }
+            update() {
+                this.y -= this.speedY;
+                if (this.y < 0) { this.y = canvas.height; this.x = Math.random() * canvas.width; }
+            }
+            draw() {
+                /* Updated to match the new Dusty Blue */
+                ctx.fillStyle = `rgba(107, 140, 174, ${this.opacity})`;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+        function initParticles() { particlesArray = []; for (let i = 0; i < 50; i++) particlesArray.push(new Particle()); }
+        function animateParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particlesArray.forEach(particle => { particle.update(); particle.draw(); });
+            requestAnimationFrame(animateParticles);
+        }
+        window.addEventListener('resize', () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; initParticles(); });
+        initParticles(); animateParticles();
+        const canvas = document.getElementById('particles');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        let particlesArray = [];
+
+        // Track mouse/touch position
+        let mouse = { x: null, y: null, radius: 100 };
+
+        window.addEventListener('mousemove', (e) => {
+            mouse.x = e.x;
+            mouse.y = e.y;
+        });
+
+        // For touchscreens (mobile friendly)
+        window.addEventListener('touchmove', (e) => {
+            mouse.x = e.touches[0].clientX;
+            mouse.y = e.touches[0].clientY;
+        });
+
+        window.addEventListener('touchend', () => {
+            mouse.x = null;
+            mouse.y = null;
+        });
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 2.5 + 0.5; // Star size
+                this.baseX = this.x;
+                this.baseY = this.y;
+                this.density = (Math.random() * 30) + 1; // How fast they scatter
+                this.opacity = Math.random() * 0.5 + 0.2;
+            }
+
+            draw() {
+                // Matches your dusty blue theme
+                ctx.fillStyle = `rgba(107, 140, 174, ${this.opacity})`;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.closePath();
+                ctx.fill();
+            }
+
+            update() {
+                // Calculate distance between mouse and star
+                let dx = mouse.x - this.x;
+                let dy = mouse.y - this.y;
+                let distance = Math.sqrt(dx * dx + dy * dy);
+
+                // Mouse repulsion logic
+                let forceDirectionX = dx / distance;
+                let forceDirectionY = dy / distance;
+                let maxDistance = mouse.radius;
+                let force = (maxDistance - distance) / maxDistance;
+                let directionX = forceDirectionX * force * this.density;
+                let directionY = forceDirectionY * force * this.density;
+
+                if (distance < mouse.radius) {
+                    this.x -= directionX;
+                    this.y -= directionY;
+                } else {
+                    // Smoothly return to original position
+                    if (this.x !== this.baseX) {
+                        let dx = this.x - this.baseX;
+                        this.x -= dx / 10;
+                    }
+                    if (this.y !== this.baseY) {
+                        let dy = this.y - this.baseY;
+                        this.y -= dy / 10;
+                    }
+                }
+
+                // The gentle floating up animation
+                this.baseY -= 0.5;
+                if (this.baseY < 0) {
+                    this.baseY = canvas.height;
+                    this.baseX = Math.random() * canvas.width;
+                    this.x = this.baseX;
+                    this.y = this.baseY;
+                }
+            }
+        }
+
+        function initParticles() {
+            particlesArray = [];
+            // Number of stars (increase for more, decrease for less)
+            for (let i = 0; i < 120; i++) {
+                particlesArray.push(new Particle());
+            }
+        }
+
+        function animateParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            for (let i = 0; i < particlesArray.length; i++) {
+                particlesArray[i].update();
+                particlesArray[i].draw();
+            }
+            requestAnimationFrame(animateParticles);
+        }
+
+        // Keep it responsive if the window is resized
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            initParticles();
+        });
+
+        initParticles();
+        animateParticles();
+
+    </script>
+
+</body>
+
+</html>
